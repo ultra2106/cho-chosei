@@ -478,7 +478,6 @@
 
     // ── CREATE ──
     document.getElementById('createBtn').addEventListener('click',()=>{
-      if(!EXEC_URL){ alert('準備中です。少し待ってから再度お試しください。'); return; }
       const t = document.getElementById('title').value.trim();
       const d = document.getElementById('desc').value.trim();
       if(!t){ alert('タイトルを入力してください'); return; }
