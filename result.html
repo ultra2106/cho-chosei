@@ -190,10 +190,13 @@
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbwXSl-Rd26XLdSWCBncko1B1xOBHgZ0Vmfwzn0n_cQWQ7bMCNPzsGsBEVy1wXyG8pkX_w/exec';
 
     async function gasApi(action, params={}) {
-      const res = await fetch(GAS_URL, { method:'POST', body:JSON.stringify({action,...params}) });
-      const json = await res.json();
-      if(!json.ok) throw new Error(json.error||'API error');
-      return json.data;
+      // doGet方式でCORSを回避（GASはdoPostにCORSヘッダーを付けられないため）
+      const query = '?action=' + encodeURIComponent(action)
+                  + '&params=' + encodeURIComponent(JSON.stringify(params));
+      const res = await fetch(GAS_URL + query);
+      const data = await res.json();
+      if(!data.ok) throw new Error(data.error||'API error');
+      return data.data;
     }
 
     const base = location.origin + location.pathname.replace(/result\.html$/, '');
