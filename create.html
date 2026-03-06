@@ -491,7 +491,7 @@
         .then(eventId => {
           hideOverlay();
           document.getElementById('createBtn').disabled = false;
-          const base = location.origin + location.pathname.replace(/index\.html$/, '');
+          const base = location.origin + location.pathname.replace(/create\.html$/, '').replace(/index\.html$/, '');
           const vUrl = `${base}vote.html?eventId=${encodeURIComponent(eventId)}`;
           const rUrl = `${base}result.html?eventId=${encodeURIComponent(eventId)}`;
           const ac = document.getElementById('afterCreate');
