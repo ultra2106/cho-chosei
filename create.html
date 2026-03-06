@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>超調整さん — イベント作成</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Syne:wght@700;800&display=swap">
+  <style>
+    @font-face { font-family:'Syne'; font-weight:700; font-display:swap; src:local('Arial Black'),local('Impact'); }
+    @font-face { font-family:'Syne'; font-weight:800; font-display:swap; src:local('Arial Black'),local('Impact'); }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #0d1117;
+      --paper: #f5f2ea;
+      --cream: #faf8f3;
+      --accent: #e8440a;
+      --accent2: #f5a623;
+      --muted: #6b6357;
+      --border: #d4cec4;
+      --card: #ffffff;
+      --radius: 6px;
+      --shadow: 3px 3px 0 var(--ink);
+      --shadow-lg: 5px 5px 0 var(--ink);
+      --ring: 0 0 0 3px rgba(232,68,10,0.25);
+    }
+
+    html, body { min-height: 100%; }
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 15px;
+    }
+
+    /* ── HEADER ── */
+    .app-header {
+      background: var(--ink); color: #fff;
+      padding: 14px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 3px solid var(--accent);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .app-logo {
+      font-family:'Syne','Arial Black',Arial,sans-serif;
+      font-size: 18px; font-weight: 800;
+      color: #fff; text-decoration: none;
+    }
+    .app-logo span { color: var(--accent2); }
+    .app-header-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
+
+    /* ── LAYOUT ── */
+    .app-main {
+      max-width: 640px;
+      margin: 32px auto;
+      padding: 0 20px 80px;
+    }
+
+    .page-title {
+      font-family:'Syne','Arial Black',Arial,sans-serif;
+      font-size: 26px; font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .page-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+
+    /* ── RECENT CARD ── */
+    .recent-card {
+      background: var(--cream);
+      border: 2px solid var(--ink); border-radius: 8px;
+      padding: 16px 18px; margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    .recent-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--muted); letter-spacing: .3px; }
+    #recentList { list-style: none; }
+    #recentList li { margin-bottom: 6px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    #recentList a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    #recentList a:hover { text-decoration: underline; }
+    #recentList small { color: var(--muted); font-size: 11px; }
+    .btn-clear-recent {
+      margin-top: 10px; padding: 6px 14px; background: transparent;
+      border: 1.5px solid var(--border); color: var(--muted);
+      border-radius: var(--radius); font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: border-color .15s, color .15s;
+    }
+    .btn-clear-recent:hover { border-color: #d33; color: #d33; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border: 2px solid var(--ink); border-radius: 10px;
+      padding: 22px 20px; margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      transition: box-shadow .15s, transform .15s;
+    }
+    .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+
+    .card-title {
+      font-family:'Syne','Arial Black',Arial,sans-serif;
+      font-size: 14px; font-weight: 800;
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }
+    .card-title-icon { font-size: 18px; }
+
+    /* ── FORM ── */
+    label {
+      display: block; font-size: 12px; font-weight: 700;
+      color: var(--muted); margin-bottom: 6px; margin-top: 14px;
+      letter-spacing: .3px;
+    }
+    label:first-child { margin-top: 0; }
+
+    input[type="text"] {
+      width: 100%; padding: 11px 13px;
+      border: 2px solid var(--border); border-radius: var(--radius);
+      background: var(--cream); color: var(--ink);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 15px; /* iOS zoom防止 */
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+    }
+    input[type="text"]:focus { border-color: var(--accent); box-shadow: var(--ring); }
+    input[type="text"]::placeholder { color: var(--muted); opacity: .6; }
+
+    /* ── DATE TAGS ── */
+    .tags-area { min-height: 36px; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #fff8e6; border: 1.5px solid var(--accent2);
+      color: #5a3a00; padding: 5px 10px;
+      border-radius: 999px; font-size: 13px; font-weight: 700;
+    }
+    .tag button {
+      border: none; background: none; cursor: pointer;
+      color: var(--muted); font-size: 14px; font-weight: 900;
+      padding: 0; line-height: 1; transition: color .1s;
+    }
+    .tag button:hover { color: #d33; }
+    .empty-msg { font-size: 13px; color: var(--muted); padding: 4px 0; }
+
+    /* ── QUICK BUTTONS ── */
+    .quick-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .btn-quick {
+      padding: 9px 14px; background: var(--cream);
+      border: 2px solid var(--border); border-radius: var(--radius);
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      font-family: 'Noto Sans JP', sans-serif;
+      transition: border-color .15s, background .15s;
+    }
+    .btn-quick:hover { border-color: var(--accent2); background: #fff8e6; }
+    .btn-reset {
+      padding: 9px 14px; background: transparent;
+      border: 2px solid var(--border); border-radius: var(--radius);
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      color: var(--muted);
+      font-family: 'Noto Sans JP', sans-serif;
+      transition: border-color .15s, color .15s;
+    }
+    .btn-reset:hover { border-color: #d33; color: #d33; }
+
+    .note { font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.65; }
+
+    /* ── ACTIONS ── */
+    .actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-create {
+      flex: 1; padding: 15px 20px;
+      background: var(--accent); color: #fff;
+      border: 2px solid var(--accent); border-radius: var(--radius);
+      font-family:'Syne','Arial Black',Arial,sans-serif;
+      font-size: 16px; font-weight: 800; cursor: pointer;
+      box-shadow: 3px 3px 0 var(--accent2);
+      transition: transform .1s, box-shadow .1s;
+    }
+    .btn-create:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--accent2); }
+    .btn-create:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--accent2); }
+    .btn-create:disabled { opacity: .5; pointer-events: none; }
+    .btn-secondary {
+      padding: 15px 20px;
+      background: transparent; color: var(--muted);
+      border: 2px solid var(--border); border-radius: var(--radius);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+    .btn-secondary:hover { border-color: #d33; color: #d33; }
+
+    /* ── AFTER CREATE ── */
+    .after-card {
+      display: none;
+      background: #e6f7ea; border: 2px solid #27ae60;
+      border-radius: 10px; padding: 20px; margin-top: 16px;
+      box-shadow: var(--shadow);
+    }
+    .after-card p { font-weight: 700; margin-bottom: 14px; }
+    .after-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-go {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 11px 20px; border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      text-decoration: none; transition: transform .1s, box-shadow .1s;
+      box-shadow: var(--shadow);
+    }
+    .btn-go:hover { transform: translate(-2px,-2px); box-shadow: var(--shadow-lg); }
+    .btn-go.vote   { background: #fff8e6; color: var(--ink); }
+    .btn-go.result { background: var(--ink); color: #fff; }
+
+    /* ── OVERLAY ── */
+    #overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(13,17,23,0.6); backdrop-filter: blur(4px);
+      z-index: 9999; align-items: center; justify-content: center;
+    }
+    #overlay.show { display: flex; }
+    .loader-box {
+      background: var(--card); border: 2px solid var(--ink);
+      border-radius: 12px; padding: 36px 40px; text-align: center;
+      box-shadow: 8px 8px 0 var(--ink);
+    }
+    .spinner {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 4px solid rgba(13,17,23,0.1);
+      border-top-color: var(--accent);
+      animation: spin .8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text { font-weight: 700; font-size: 15px; color: var(--ink); }
+    .loader-sub  { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* Flatpickr 上書き */
+    .flatpickr-calendar {
+      border: 2px solid var(--ink) !important;
+      box-shadow: 6px 6px 0 var(--ink) !important;
+      border-radius: 10px !important;
+    }
+    .flatpickr-day.selected { background: var(--accent) !important; border-color: var(--accent) !important; }
+  </style>
+</head>
+<body>
+
+  <div id="overlay"><div class="loader-box"><div class="spinner"></div><div class="loader-text">イベントを作成中…</div><div class="loader-sub">そのままお待ちください</div></div></div>
+
+  <header class="app-header">
+    <a href="?" class="app-logo">超調整<span>さん</span></a>
+    <div class="app-header-sub">昼・夜・両方で答える日程調整</div>
+  </header>
+
+  <main class="app-main">
+
+    <!-- 最近見たイベント -->
+    <div class="recent-card" id="recentCard" style="display:none;">
+      <h3>📂 最近このブラウザで見たイベント</h3>
+      <ul id="recentList"></ul>
+      <button class="btn-clear-recent" id="clearRecentBtn">履歴をクリア</button>
+    </div>
+
+    <h1 class="page-title">🗓️ イベントを作成</h1>
+    <p class="page-sub">タイトルと候補日を入力してURLを参加者にシェアするだけ</p>
+
+    <!-- 基本情報 -->
+    <div class="card">
+      <div class="card-title"><span class="card-title-icon">📝</span>基本情報</div>
+      <label>タイトル <span style="color:var(--accent);">*</span></label>
+      <input id="title" type="text" placeholder="例：4月の飲み会">
+      <label>説明（任意）</label>
+      <input id="desc"  type="text" placeholder="例：居酒屋候補は後ほど連絡します">
+    </div>
+
+    <!-- 候補日 -->
+    <div class="card">
+      <div class="card-title"><span class="card-title-icon">📅</span>候補日を追加</div>
+
+      <label>カレンダーから選択</label>
+      <input id="datePicker" type="text" placeholder="クリックしてカレンダーを開く" readonly style="cursor:pointer;">
+
+      <label>または直接入力（Enter で追加）</label>
+      <input id="dateText" type="text" placeholder="例：4/11, 4/18, 4/25">
+
+      <div class="tags-area" id="selectedDates">
+        <span class="empty-msg">候補日がまだありません</span>
+      </div>
+
+      <div class="quick-btns">
+        <button class="btn-quick" id="addThisMonthBtn">今日以降の今月の平日を追加</button>
+        <button class="btn-quick" id="addNextMonthBtn">来月の平日を一括追加</button>
+        <button class="btn-reset" id="resetDatesInlineBtn">日程をリセット</button>
+      </div>
+
+      <p class="note">🗓️ 祝日・振替休日は2026〜2100年まで内蔵対応。複数月またぎも可。</p>
+    </div>
+
+    <!-- 作成ボタン -->
+    <div class="actions">
+      <button class="btn-create" id="createBtn" disabled>✨ イベントを作成する</button>
+      <button class="btn-secondary" id="clearBtn">クリア</button>
+    </div>
+
+    <!-- 作成後 -->
+    <div class="after-card" id="afterCreate">
+      <p>✅ イベントを作成しました！URLを参加者に送りましょう。</p>
+      <div class="after-btns">
+        <a class="btn-go vote"   id="goVoteBtn"   href="#">🗳️ 投票ページへ</a>
+        <a class="btn-go result" id="goResultBtn" href="#">📊 結果ページへ</a>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // ── CONFIG（ここにGASのdeployment URLを設定） ──
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwXSl-Rd26XLdSWCBncko1B1xOBHgZ0Vmfwzn0n_cQWQ7bMCNPzsGsBEVy1wXyG8pkX_w/exec';
+
+    // ── GAS API クライアント ──
+    async function gasApi(action, params = {}) {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action, ...params }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || 'API error');
+      return json.data;
+    }
+
+    // ── STATE ──
+    let slots = new Set();
+    let calSelected = new Set();
+    let datePickerFp = null;
+
+    // ページ読み込み完了したらボタンを有効化
+    document.getElementById('createBtn').disabled = false;
+
+    // ── OVERLAY ──
+    const overlay = document.getElementById('overlay');
+    const showOverlay = () => overlay.classList.add('show');
+    const hideOverlay = () => overlay.classList.remove('show');
+
+    // ── RECENT EVENTS ──
+    (function(){
+      const KEY = 'recentEvents';
+      const card = document.getElementById('recentCard');
+      const list = document.getElementById('recentList');
+      const clearBtn = document.getElementById('clearRecentBtn');
+
+      function fmt(ts){
+        const d = new Date(ts);
+        return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      }
+
+      function render(){
+        let data; try{ data = JSON.parse(localStorage.getItem(KEY)) || []; } catch(e){ data = []; }
+        if(!data.length){ card.style.display='none'; return; }
+        card.style.display='';
+        data.sort((a,b)=>(b.visitedAt||0)-(a.visitedAt||0));
+        list.innerHTML = '';
+        data.slice(0,10).forEach(item=>{
+          const li = document.createElement('li');
+          li.innerHTML = `<a href="${item.url}">${item.title}</a><small>（${fmt(item.visitedAt||0)}）</small>`;
+          list.appendChild(li);
+        });
+      }
+      clearBtn.addEventListener('click', ()=>{ localStorage.removeItem(KEY); render(); });
+      render();
+    })();
+
+    // ── DATE UTILS ──
+    function toMD(ymd){ const [,m,d]=ymd.split('-').map(Number); return `${m}/${d}`; }
+    function toYMD(dt){ return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`; }
+    function sortYMD(arr){ return arr.slice().sort((a,b)=>a.localeCompare(b)); }
+    function normYMD(s){
+      s = s.trim();
+      if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+      const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})$/);
+      if(m) return `${new Date().getFullYear()}-${String(+m[1]).padStart(2,'0')}-${String(+m[2]).padStart(2,'0')}`;
+      return null;
+    }
+
+    // ── RENDER TAGS ──
+    function renderSelected(){
+      const area = document.getElementById('selectedDates');
+      if(!slots.size){ area.innerHTML = '<span class="empty-msg">候補日がまだありません</span>'; return; }
+      area.innerHTML = sortYMD([...slots]).map(ymd =>
+        `<span class="tag">${toMD(ymd)}<button onclick="removeDate('${ymd}')" aria-label="${toMD(ymd)}を削除">×</button></span>`
+      ).join('');
+    }
+    window.removeDate = ymd => { slots.delete(ymd); syncCal(); renderSelected(); };
+
+    function syncCal(){
+      if(!datePickerFp) return;
+      const arr = sortYMD([...slots]);
+      datePickerFp.setDate(arr, false);
+      calSelected = new Set(arr);
+      document.getElementById('datePicker').value = '';
+      document.getElementById('datePicker').placeholder = 'クリックしてカレンダーを開く';
+    }
+
+    // ── FLATPICKR ──
+    document.addEventListener('DOMContentLoaded', ()=>{
+      datePickerFp = flatpickr('#datePicker', {
+        mode: 'multiple', locale: 'ja', disableMobile: true, dateFormat: 'Y-m-d',
+        onChange(dates){
+          const next = new Set(dates.map(toYMD));
+          [...next].forEach(y=>{ if(!calSelected.has(y)) slots.add(y); });
+          [...calSelected].forEach(y=>{ if(!next.has(y)) slots.delete(y); });
+          calSelected = next;
+          document.getElementById('datePicker').value = '';
+          renderSelected();
+        }
+      });
+    });
+
+    document.getElementById('dateText').addEventListener('keyup', e=>{
+      if(e.key !== 'Enter') return;
+      e.target.value.split(',').map(normYMD).filter(Boolean).forEach(y=>slots.add(y));
+      e.target.value = ''; renderSelected(); syncCal();
+    });
+
+    // ── HOLIDAY ENGINE ──
+    const hCache = new Map();
+    function ymdFrom(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+    function fromYMD(ymd){ const [y,m,d]=ymd.split('-').map(Number); return new Date(y,m-1,d); }
+    function nth(y,m,wd,n){ const first=new Date(y,m-1,1); return new Date(y,m-1,1+(7+wd-first.getDay())%7+7*(n-1)); }
+    function holidays(year){
+      if(hCache.has(year)) return hCache.get(year);
+      const set = new Set([
+        `${year}-01-01`,`${year}-02-11`,`${year}-02-23`,
+        `${year}-04-29`,`${year}-05-03`,`${year}-05-04`,`${year}-05-05`,
+        `${year}-08-11`,`${year}-11-03`,`${year}-11-23`,
+        ymdFrom(nth(year,1,1,2)), ymdFrom(nth(year,7,1,3)),
+        ymdFrom(nth(year,9,1,3)), ymdFrom(nth(year,10,1,2)),
+      ]);
+      const sp=Math.floor(20.8431+0.242194*(year-1980))-Math.floor((year-1980)/4);
+      const at=Math.floor(23.2488+0.242194*(year-1980))-Math.floor((year-1980)/4);
+      set.add(`${year}-03-${String(sp).padStart(2,'0')}`);
+      set.add(`${year}-09-${String(at).padStart(2,'0')}`);
+      // 国民の休日
+      for(let m=1;m<=12;m++){
+        for(let d=2;d<=new Date(year,m,0).getDate()-1;d++){
+          const ymd=`${year}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+          if(!set.has(ymd)){
+            const p=ymdFrom(new Date(year,m-1,d-1)), nx=ymdFrom(new Date(year,m-1,d+1));
+            if(set.has(p)&&set.has(nx)) set.add(ymd);
+          }
+        }
+      }
+      // 振替休日
+      [...set].sort().forEach(ymd=>{
+        const dt=fromYMD(ymd);
+        if(dt.getDay()===0){ let cur=new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()+1); while(set.has(ymdFrom(cur))) cur.setDate(cur.getDate()+1); set.add(ymdFrom(cur)); }
+      });
+      hCache.set(year,set); return set;
+    }
+
+    function addWeekdays(year, month){
+      const hset = holidays(year);
+      const end = new Date(year, month, 0);
+      let start = new Date(); start.setHours(0,0,0,0); start.setDate(start.getDate()+1);
+      if(start.getMonth()+1 !== month || start.getFullYear() !== year) start = new Date(year, month-1, 1);
+      for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
+        const wd=d.getDay();
+        if(wd>=1&&wd<=5&&!hset.has(ymdFrom(d))) slots.add(ymdFrom(d));
+      }
+      renderSelected(); syncCal();
+    }
+
+    document.getElementById('addThisMonthBtn').addEventListener('click',()=>{ const n=new Date(); addWeekdays(n.getFullYear(),n.getMonth()+1); });
+    document.getElementById('addNextMonthBtn').addEventListener('click',()=>{
+      const n=new Date(); const m=n.getMonth()+1;
+      addWeekdays(m===12?n.getFullYear()+1:n.getFullYear(), m===12?1:m+1);
+    });
+
+    // ── CREATE ──
+    document.getElementById('createBtn').addEventListener('click',()=>{
+      if(!EXEC_URL){ alert('準備中です。少し待ってから再度お試しください。'); return; }
+      const t = document.getElementById('title').value.trim();
+      const d = document.getElementById('desc').value.trim();
+      if(!t){ alert('タイトルを入力してください'); return; }
+      if(!slots.size){ alert('候補日を1つ以上追加してください'); return; }
+
+      const arr = sortYMD([...slots]).map(toMD);
+      document.getElementById('createBtn').disabled = true;
+      showOverlay();
+
+      gasApi('createEvent', { title: t, desc: d, slots: arr })
+        .then(eventId => {
+          hideOverlay();
+          document.getElementById('createBtn').disabled = false;
+          const base = location.origin + location.pathname.replace(/index\.html$/, '');
+          const vUrl = `${base}vote.html?eventId=${encodeURIComponent(eventId)}`;
+          const rUrl = `${base}result.html?eventId=${encodeURIComponent(eventId)}`;
+          const ac = document.getElementById('afterCreate');
+          ac.style.display = 'block';
+          const vBtn = document.getElementById('goVoteBtn');
+          const rBtn = document.getElementById('goResultBtn');
+          vBtn.href = vUrl;
+          rBtn.href = rUrl;
+          ac.scrollIntoView({behavior:'smooth',block:'center'});
+        })
+        .catch(err => {
+          console.error(err); hideOverlay();
+          document.getElementById('createBtn').disabled = false;
+          alert('作成に失敗しました。時間をおいて再試行してください。');
+        });
+    });
+
+    // ── CLEAR ──
+    function fullClear(){
+      document.getElementById('title').value = '';
+      document.getElementById('desc').value = '';
+      document.getElementById('dateText').value = '';
+      slots.clear(); calSelected = new Set();
+      if(datePickerFp){ datePickerFp.clear(); }
+      document.getElementById('datePicker').value = '';
+      renderSelected();
+      document.getElementById('afterCreate').style.display = 'none';
+    }
+    document.getElementById('clearBtn').addEventListener('click', fullClear);
+    document.getElementById('resetDatesInlineBtn').addEventListener('click',()=>{
+      slots.clear(); calSelected = new Set();
+      if(datePickerFp) datePickerFp.clear();
+      document.getElementById('datePicker').value = '';
+      document.getElementById('dateText').value = '';
+      renderSelected();
+    });
+
+    renderSelected();
+  </script>
+</body>
+</html>

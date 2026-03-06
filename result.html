@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>超調整さん — 結果</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Syne:wght@700;800&display=swap">
+  <style>
+    @font-face { font-family:'Syne'; font-weight:700; font-display:swap; src:local('Arial Black'),local('Impact'); }
+    @font-face { font-family:'Syne'; font-weight:800; font-display:swap; src:local('Arial Black'),local('Impact'); }
+  </style>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #0d1117;
+      --paper: #f5f2ea;
+      --cream: #faf8f3;
+      --accent: #e8440a;
+      --accent2: #f5a623;
+      --green: #27ae60;
+      --muted: #6b6357;
+      --border: #d4cec4;
+      --card: #ffffff;
+      --radius: 6px;
+      --shadow: 3px 3px 0 var(--ink);
+      --shadow-lg: 5px 5px 0 var(--ink);
+    }
+    @media(prefers-color-scheme:dark){
+      :root{ --ink:#eef1f6; --paper:#0f1115; --cream:#171a20; --card:#1e2228; --border:#2b2f38; --muted:#aab2c0; }
+      .r-table td, .r-table th { background: var(--cream) !important; }
+      .r-table tr.best td { background: #2a2500 !important; }
+    }
+
+    body { font-family:'Noto Sans JP',sans-serif; background:var(--paper); color:var(--ink); font-size:15px; }
+
+    /* ── HEADER ── */
+    .app-header { background:var(--ink); color:#fff; padding:14px 24px; display:flex; align-items:center; justify-content:space-between; border-bottom:3px solid var(--accent); position:sticky; top:0; z-index:50; }
+    .app-logo { font-family:'Syne','Arial Black',Arial,sans-serif; font-size:18px; font-weight:800; color:#fff; text-decoration:none; }
+    .app-logo span { color:var(--accent2); }
+    .app-badge { font-size:11px; font-weight:700; letter-spacing:1px; background:var(--accent); color:#fff; padding:4px 12px; border-radius:999px; }
+
+    /* ── LAYOUT ── */
+    .app-main { max-width: 860px; margin:28px auto; padding:0 20px 80px; }
+
+    /* ── EVENT TITLE ── */
+    .event-card { background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:10px; padding:20px 22px; margin-bottom:20px; box-shadow:var(--shadow-lg); }
+    .event-card-label { font-size:11px; font-weight:700; letter-spacing:2px; opacity:.6; margin-bottom:6px; text-transform:uppercase; }
+    .event-card-title { font-family:'Syne','Arial Black',Arial,sans-serif; font-size:20px; font-weight:800; line-height:1.3; margin-bottom:16px; }
+    .event-btns { display:flex; gap:10px; flex-wrap:wrap; }
+    .btn-copy, .btn-go-vote {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:9px 16px; border-radius:var(--radius);
+      font-size:13px; font-weight:700; cursor:pointer;
+      transition:transform .1s, box-shadow .1s; border:2px solid;
+      text-decoration:none;
+    }
+    .btn-copy { background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.25); color:#fff; }
+    .btn-copy:hover { background:rgba(255,255,255,0.22); }
+    .btn-go-vote { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:2px 2px 0 var(--accent2); }
+    .btn-go-vote:hover { transform:translate(-1px,-1px); box-shadow:3px 3px 0 var(--accent2); }
+    .btn-go-vote.disabled, .btn-copy.disabled { opacity:.4; pointer-events:none; }
+    #copyResultMsg { font-size:12px; margin-top:6px; opacity:.8; min-height:18px; }
+
+    /* ── CALENDAR ── */
+    .cal-card { background:var(--card); border:2px solid var(--ink); border-radius:10px; overflow:hidden; margin-bottom:16px; box-shadow:var(--shadow); }
+    .cal-head { background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,#fff8f0),#fff3ec); padding:12px 16px; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid var(--border); }
+    .cal-note { padding:10px 16px; font-size:12px; color:var(--muted); border-bottom:1px solid var(--border); line-height:1.6; }
+    .cal-wrap { padding:12px; }
+    .cal-month { border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:10px; }
+    .cal-mhead { padding:8px 12px; font-weight:900; font-size:13px; background:color-mix(in srgb,var(--accent) 6%,transparent); border-bottom:1px solid var(--border); }
+    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); }
+    .cal-wd { text-align:center; font-size:11px; font-weight:900; color:var(--muted); padding:7px 0; background:color-mix(in srgb,var(--accent) 4%,#faf5f2); border-bottom:1px solid var(--border); }
+    .cal-cell { min-height:72px; border-right:1px solid var(--border); border-bottom:1px solid var(--border); padding:5px; background:var(--card); }
+    .cal-cell:nth-child(7n){ border-right:none; }
+    .cal-cell.hit { cursor:pointer; transition:transform .08s, box-shadow .1s; }
+    .cal-cell.hit:hover { transform:translateY(-2px); box-shadow:0 4px 10px rgba(0,0,0,0.08); }
+    .cal-cell.best { outline:2px solid var(--accent2); background:linear-gradient(180deg,#fff8d6,#fff1bf); }
+    .cal-daynum { font-size:12px; font-weight:900; display:flex; justify-content:space-between; align-items:center; }
+    .cal-wd-badge { font-size:10px; font-weight:900; padding:1px 6px; border-radius:999px; background:color-mix(in srgb,var(--accent) 10%,transparent); color:color-mix(in srgb,var(--accent) 70%,#5a2a00); }
+    .cal-meta { margin-top:5px; font-size:11px; color:var(--muted); line-height:1.45; }
+
+    /* ── TABLE ── */
+    .table-card { background:var(--card); border:2px solid var(--ink); border-radius:10px; overflow:hidden; margin-bottom:16px; box-shadow:var(--shadow); }
+    .table-card-head { background:var(--ink); color:#fff; padding:12px 16px; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:space-between; }
+    .table-wrap { overflow-x:auto; }
+    .r-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .r-table th { background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 10%,#fff8f0),#fff3ec); padding:10px 12px; text-align:center; font-weight:700; border-bottom:2px solid var(--border); font-size:12px; white-space:nowrap; }
+    .r-table th:first-child { text-align:left; }
+    .r-table td { padding:10px 12px; text-align:center; border-bottom:1px solid #f0f0f0; white-space:nowrap; }
+    .r-table td:first-child { text-align:left; font-weight:700; }
+    .r-table tr:last-child td { border-bottom:none; }
+    .r-table tr.best td { background:linear-gradient(180deg,#fff8d6,#fff1bf) !important; }
+    .r-table tbody tr:hover td { background:#fafbff; }
+    .r-table tr.best:hover td { background:linear-gradient(180deg,#fff4b8,#ffecaa) !important; }
+    .best-badge { display:inline-block; background:var(--accent); color:#fff; font-size:10px; font-weight:900; padding:2px 7px; border-radius:999px; margin-left:5px; }
+    .tag-d { background:#fff2c2; color:#5a4600; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:800; }
+    .tag-n { background:#e7efff; color:#173a7a; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:800; }
+    .tag-b { background:#e6f7ea; color:#0b5a1b; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:800; }
+    .tag-x { color:#d33; font-weight:900; font-size:14px; }
+
+    /* ── AI BUTTON ── */
+    .ai-card { background:var(--cream); border:2px solid var(--ink); border-radius:10px; padding:20px; box-shadow:var(--shadow); }
+    .ai-card-title { font-family:'Syne','Arial Black',Arial,sans-serif; font-size:15px; font-weight:800; margin-bottom:8px; }
+    .ai-card-desc { font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:14px; }
+    .btn-ai {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:12px 22px; background:var(--ink); color:#fff;
+      border:2px solid var(--ink); border-radius:var(--radius);
+      font-size:14px; font-weight:700; cursor:pointer;
+      box-shadow:var(--shadow); transition:transform .1s,box-shadow .1s;
+    }
+    .btn-ai:hover { transform:translate(-2px,-2px); box-shadow:var(--shadow-lg); }
+    .btn-ai:active { transform:translate(1px,1px); box-shadow:1px 1px 0 var(--ink); }
+
+    /* ── OVERLAY ── */
+    #overlay { display:none; position:fixed; inset:0; background:rgba(13,17,23,0.6); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; }
+    #overlay.show { display:flex; }
+    .loader-box { background:var(--card); border:2px solid var(--ink); border-radius:12px; padding:36px 40px; text-align:center; box-shadow:8px 8px 0 var(--ink); }
+    .spinner { width:44px; height:44px; border-radius:50%; border:4px solid rgba(13,17,23,0.08); border-top-color:var(--accent); animation:spin .8s linear infinite; margin:0 auto 16px; }
+    @keyframes spin { to{ transform:rotate(360deg); } }
+    .loader-text { font-weight:700; font-size:15px; }
+    .loader-sub  { font-size:12px; color:var(--muted); margin-top:4px; }
+  </style>
+</head>
+<body>
+
+  <div id="overlay"><div class="loader-box"><div class="spinner"></div><div class="loader-text">集計を読み込み中…</div><div class="loader-sub">そのままお待ちください</div></div></div>
+
+  <header class="app-header">
+    <a href="?" class="app-logo">超調整<span>さん</span></a>
+    <span class="app-badge">📊 結果</span>
+  </header>
+
+  <main class="app-main">
+
+    <!-- イベント情報 -->
+    <div class="event-card">
+      <div class="event-card-label">集計結果</div>
+      <div class="event-card-title" id="eventTitle">読み込み中…</div>
+      <div class="event-btns">
+        <button class="btn-copy disabled" id="copyResultUrlBtn">🔗 結果URLをコピー</button>
+        <a class="btn-go-vote disabled" id="goVotePageBtn" href="#">🗳️ 投票ページへ</a>
+      </div>
+      <div id="copyResultMsg"></div>
+    </div>
+
+    <!-- カレンダー -->
+    <div class="cal-card">
+      <div class="cal-head">
+        <span>📅 カレンダー</span>
+        <span style="font-size:11px;opacity:.7;">タップで下の表へジャンプ</span>
+      </div>
+      <div class="cal-note">⭐ 最多日程はオレンジ枠で強調。「両方（昼夜）」は昼・夜それぞれ+1でカウント。</div>
+      <div class="cal-wrap" id="calendarWrap"></div>
+    </div>
+
+    <!-- 集計表 -->
+    <div class="table-card">
+      <div class="table-card-head">
+        <span>📋 日程別 集計表</span>
+        <span id="totalVoters" style="font-size:12px;opacity:.65;"></span>
+      </div>
+      <div class="table-wrap">
+        <table class="r-table" id="tbl"></table>
+      </div>
+    </div>
+
+    <!-- AI集合場所提案 -->
+    <div class="ai-card">
+      <div class="ai-card-title">🤖 AI 集合場所を提案してもらう</div>
+      <div class="ai-card-desc">参加者の最寄り駅を自動収集し、Perplexity AI に渡して「移動時間が最短の集合駅TOP3」を提案させます。<br>※ 投票時に最寄り駅を入力した参加者のデータを使用します。</div>
+      <button class="btn-ai" id="askAIButton">🚉 集合場所を提案してもらう</button>
+    </div>
+
+  </main>
+
+  <script>
+    // URLクエリからeventIdを取得
+    const EVENT_ID = new URLSearchParams(location.search).get('eventId') || '';
+
+    const overlay = document.getElementById('overlay');
+    const showOvl = ()=>overlay.classList.add('show');
+    const hideOvl = ()=>overlay.classList.remove('show');
+
+    // ── CONFIG ──
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwXSl-Rd26XLdSWCBncko1B1xOBHgZ0Vmfwzn0n_cQWQ7bMCNPzsGsBEVy1wXyG8pkX_w/exec';
+
+    async function gasApi(action, params={}) {
+      const res = await fetch(GAS_URL, { method:'POST', body:JSON.stringify({action,...params}) });
+      const json = await res.json();
+      if(!json.ok) throw new Error(json.error||'API error');
+      return json.data;
+    }
+
+    const base = location.origin + location.pathname.replace(/result\.html$/, '');
+    const RESULT_URL = `${location.origin}${location.pathname}?eventId=${encodeURIComponent(EVENT_ID)}`;
+    const VOTE_URL   = `${base}vote.html?eventId=${encodeURIComponent(EVENT_ID)}`;
+
+    // ボタン有効化
+    document.getElementById('copyResultUrlBtn').classList.remove('disabled');
+    document.getElementById('goVotePageBtn').classList.remove('disabled');
+    document.getElementById('goVotePageBtn').href = VOTE_URL;
+
+    function logRecent(title){
+      const KEY='recentEvents', MAX=20, EXP=30*24*60*60*1000;
+      let list=[]; try{ list=JSON.parse(localStorage.getItem(KEY))||[]; }catch(e){}
+      list=list.filter(x=>x&&x.id!==EVENT_ID);
+      list.unshift({id:EVENT_ID,title:title||'(タイトルなし)',url:RESULT_URL||location.href,visitedAt:Date.now()});
+      list=list.filter(x=>(Date.now()-(x.visitedAt||0))<=EXP).slice(0,MAX);
+      localStorage.setItem(KEY,JSON.stringify(list));
+    }
+
+    if(EVENT_ID) {
+      gasApi('getEventTitle', {eventId:EVENT_ID}).then(title=>{
+        document.getElementById('eventTitle').textContent=title||'(タイトルなし)';
+        logRecent(title);
+      }).catch(()=>{});
+    }
+
+    // ── FORMAT ──
+    function formatLabel(label){
+      const s=String(label||'').trim();
+      let m=s.match(/^(\d{4})\D(\d{1,2})\D(\d{1,2})$/);
+      if(m){ const dt=new Date(+m[1],+m[2]-1,+m[3]); return `${+m[2]}/${+m[3]}(${['日','月','火','水','木','金','土'][dt.getDay()]})`; }
+      m=s.match(/^(\d{1,2})\D(\d{1,2})$/);
+      if(m){ const dt=new Date(new Date().getFullYear(),+m[1]-1,+m[2]); return `${+m[1]}/${+m[2]}(${['日','月','火','水','木','金','土'][dt.getDay()]})`; }
+      return s;
+    }
+
+    function icon(s){
+      if(s==='day')   return "<span class='tag-d'>昼</span>";
+      if(s==='night') return "<span class='tag-n'>夜</span>";
+      if(s==='both')  return "<span class='tag-b'>昼夜</span>";
+      if(s==='ng')    return "<span class='tag-x'>×</span>";
+      if(s==='ok')    return "<span class='tag-b'>昼夜</span>";
+      if(s==='maybe') return "<span class='tag-n'>夜</span>";
+      return '';
+    }
+
+    function tally(userMap){
+      const r={day:0,night:0,ng:0};
+      if(!userMap) return r;
+      Object.values(userMap).forEach(v=>{
+        if(v==='day') r.day++;
+        else if(v==='night') r.night++;
+        else if(v==='both'||v==='ok'){ r.day++; r.night++; }
+        else if(v==='maybe') r.night++;
+        else if(v==='ng') r.ng++;
+      });
+      return r;
+    }
+
+    // ── CALENDAR ──
+    function pad2(n){ return String(n).padStart(2,'0'); }
+    function parseToDate(label){
+      const s=String(label||'').trim();
+      let m=s.match(/^(\d{4})\D(\d{1,2})\D(\d{1,2})/);
+      if(m) return new Date(+m[1],+m[2]-1,+m[3]);
+      m=s.match(/^(\d{1,2})\D(\d{1,2})/);
+      if(m) return new Date(new Date().getFullYear(),+m[1]-1,+m[2]);
+      return null;
+    }
+    function ymdKey(dt){ return `${dt.getFullYear()}-${pad2(dt.getMonth()+1)}-${pad2(dt.getDate())}`; }
+
+    function renderCalendar(slotMeta, bestScore){
+      const wrap=document.getElementById('calendarWrap');
+      const byMonth={};
+      slotMeta.forEach(x=>{ if(!x.date) return; const k=`${x.date.getFullYear()}-${pad2(x.date.getMonth()+1)}`; (byMonth[k]||=[]).push(x); });
+      const months=Object.keys(byMonth).sort();
+      if(!months.length){ wrap.innerHTML='<div style="color:var(--muted);font-size:12px;padding:4px;">カレンダー表示には YYYY/MM/DD または M/D 形式を推奨</div>'; return; }
+      const WDS=['日','月','火','水','木','金','土'];
+      wrap.innerHTML=months.map(mkey=>{
+        const [yy,mm]=mkey.split('-'); const y=+yy, midx=+mm-1;
+        const first=new Date(y,midx,1), last=new Date(y,midx+1,0).getDate(), sdow=first.getDay();
+        const map={}; byMonth[mkey].forEach(it=>map[it.dateKey]=it);
+        let cells='';
+        for(let i=0;i<sdow;i++) cells+=`<div class="cal-cell"></div>`;
+        for(let d=1;d<=last;d++){
+          const dt=new Date(y,midx,d), dkey=ymdKey(dt), hit=map[dkey], wd=WDS[dt.getDay()];
+          if(hit){
+            const isBest=hit.score===bestScore;
+            cells+=`<div class="cal-cell hit ${isBest?'best':''}" data-row="${hit.index}">
+              <div class="cal-daynum"><span>${d}</span><span class="cal-wd-badge">${wd}</span></div>
+              <div class="cal-meta">昼${hit.t.day} 夜${hit.t.night}<br>×${hit.t.ng}</div>
+            </div>`;
+          } else {
+            cells+=`<div class="cal-cell"><div class="cal-daynum"><span>${d}</span><span class="cal-wd-badge">${wd}</span></div></div>`;
+          }
+        }
+        return `<div class="cal-month"><div class="cal-mhead">${y}年${midx+1}月</div><div class="cal-grid">${WDS.map(w=>`<div class="cal-wd">${w}</div>`).join('')}${cells}</div></div>`;
+      }).join('');
+      wrap.querySelectorAll('.cal-cell.hit').forEach(el=>{
+        el.addEventListener('click',()=>{
+          const row=document.getElementById(`row-${el.dataset.row}`);
+          if(row) row.scrollIntoView({behavior:'smooth',block:'center'});
+        });
+      });
+    }
+
+    // ── BUILD RESULT ──
+    // コピーボタン
+    document.getElementById('copyResultUrlBtn').addEventListener('click',()=>{
+      (navigator.clipboard?navigator.clipboard.writeText(RESULT_URL):fallbackCopy(RESULT_URL))
+        .then(()=>{ document.getElementById('copyResultMsg').textContent='✓ コピーしました！'; setTimeout(()=>document.getElementById('copyResultMsg').textContent='',3000); })
+        .catch(()=>alert('コピーに失敗しました。'));
+    });
+
+    // AI集合場所
+    document.getElementById('askAIButton').addEventListener('click',()=>{
+      showOvl();
+      gasApi('getStationsByEventId', {eventId:EVENT_ID})
+        .then(stations=>{ hideOvl(); openPerplexity(stations); })
+        .catch(()=>{ hideOvl(); alert('駅情報の取得に失敗しました。'); });
+    });
+
+    // 結果取得
+    if(EVENT_ID) {
+      showOvl();
+      gasApi('getResults', {eventId:EVENT_ID})
+        .then(r=>{
+          try{ build(r); } catch(e){ console.error(e); document.getElementById('tbl').innerHTML='<tr><td>表示エラー</td></tr>'; }
+          hideOvl();
+        })
+        .catch(err=>{ console.error(err); document.getElementById('tbl').innerHTML='<tr><td>結果の取得に失敗しました。</td></tr>'; hideOvl(); });
+    }
+
+    function build(r){
+      const tbl=document.getElementById('tbl');
+      if(!r||!r.slots||!r.slots.length){ tbl.innerHTML='<tr><td style="padding:20px;color:var(--muted);">まだ候補がありません。</td></tr>'; return; }
+      const nicks=r.nicknames||[];
+      if(nicks.length) document.getElementById('totalVoters').textContent=`${nicks.length}名回答済み`;
+      tbl.innerHTML=`<thead><tr><th>日程</th><th>🌞昼</th><th>🌙夜</th><th>×</th>${nicks.map(n=>`<th>${n}</th>`).join('')}</tr></thead><tbody id="tbodyArea"></tbody>`;
+      const tbody=document.getElementById('tbodyArea');
+      let bestScore=-1;
+      const scores=[], slotMeta=[];
+      r.slots.forEach((s,i)=>{
+        const detail=(r.detail&&r.detail[s.slotId])?r.detail[s.slotId]:{};
+        const userMap=detail.user||{};
+        const t=tally(userMap);
+        const score=Math.max(t.day,t.night);
+        scores[i]=score; if(score>bestScore) bestScore=score;
+        const tr=document.createElement('tr'); tr.id=`row-${i}`;
+        const tdDate=document.createElement('td'); tdDate.innerHTML=formatLabel(s.label); tr.appendChild(tdDate);
+        const tdD=document.createElement('td'); tdD.textContent=t.day; tr.appendChild(tdD);
+        const tdN=document.createElement('td'); tdN.textContent=t.night; tr.appendChild(tdN);
+        const tdX=document.createElement('td'); tdX.textContent=t.ng; tr.appendChild(tdX);
+        nicks.forEach(n=>{ const td=document.createElement('td'); td.innerHTML=icon(userMap[n]); tr.appendChild(td); });
+        tbody.appendChild(tr);
+        const dt=parseToDate(s.label);
+        slotMeta.push({index:i,date:dt,dateKey:dt?ymdKey(dt):'',t,score});
+      });
+      const trs=tbody.querySelectorAll('tr');
+      scores.forEach((sc,idx)=>{ if(sc===bestScore&&trs[idx]){ trs[idx].classList.add('best'); const td=trs[idx].querySelector('td'); td.innerHTML+=`<span class="best-badge">★</span>`; } });
+      renderCalendar(slotMeta,bestScore);
+    }
+
+    function fallbackCopy(text){ return new Promise((res,rej)=>{ const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); try{ document.execCommand('copy')?res():rej(); }catch(e){ rej(e); } finally{ document.body.removeChild(ta); } }); }
+
+    function openPerplexity(stations){
+      const list=[...new Set((stations||[]).map(s=>String(s||'').trim()).filter(Boolean))];
+      if(!list.length){ alert('最寄り駅のデータがありません。投票時に最寄り駅を入力してください。'); return; }
+      const q=`次の参加者の最寄り駅から集合に最適な駅を提案してください。参加者の最寄り駅：${list.join('、')}。移動時間の平均・乗換回数の少なさ・集合のしやすさで評価し、上位3つを理由つきで提案してください。`;
+      window.open('https://www.perplexity.ai/?q='+encodeURIComponent(q),'_blank');
+    }
+  </script>
+</body>
+</html>
