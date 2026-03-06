@@ -283,6 +283,10 @@
 
     // ── CONFIG ──
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbzfbspy0A-AfQaKcGIOB3zkg6OMAANAGZNcxvS0ONprzaDK2wXWnAb7JGAqYKbwvQbvdg/exec';
+    const _base = location.origin + location.pathname.replace(/vote\.html$/, '');
+    const VOTE_URL   = location.origin + location.pathname + (EVENT_ID ? '?eventId=' + encodeURIComponent(EVENT_ID) : '');
+    const RESULT_URL = _base + 'result.html' + (EVENT_ID ? '?eventId=' + encodeURIComponent(EVENT_ID) : '');
+    document.getElementById('copyVoteUrlBtn').classList.remove('disabled');
     async function gasApi(action, params={}) {
       // doGet方式でCORSを回避（GASはdoPostにCORSヘッダーを付けられないため）
       const query = '?action=' + encodeURIComponent(action)
