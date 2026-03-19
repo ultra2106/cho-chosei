@@ -97,6 +97,47 @@
     .r-table tbody tr:hover td { background:#fafbff; }
     .r-table tr.best:hover td { background:linear-gradient(180deg,#fff4b8,#ffecaa) !important; }
     .best-badge { display:inline-block; background:var(--accent); color:#fff; font-size:10px; font-weight:900; padding:2px 7px; border-radius:999px; margin-left:5px; }
+    .best-badge.day   { background:#d4a000; }
+    .best-badge.night { background:#2563eb; }
+    /* ベスト日程サマリーカード */
+    .best-summary {
+      display:grid; grid-template-columns:1fr 1fr; gap:10px;
+      margin-bottom:14px;
+    }
+    .best-card {
+      border-radius:10px; padding:14px 16px;
+      border:2px solid var(--ink);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+    .best-card.day   { background:#fff8cc; }
+    .best-card.night { background:#deeaff; }
+    .best-card-label { font-size:10px; font-weight:900; letter-spacing:1px; text-transform:uppercase; opacity:.6; margin-bottom:4px; }
+    .best-card-date  { font-family:'Syne','Arial Black',Arial,sans-serif; font-size:18px; font-weight:900; line-height:1.2; }
+    .best-card-count { font-size:12px; font-weight:700; margin-top:4px; opacity:.7; }
+    /* 進捗バー */
+    .progress-wrap {
+      margin-bottom:14px;
+      background:var(--card); border:2px solid var(--border);
+      border-radius:10px; padding:14px 16px;
+    }
+    .progress-label { font-size:12px; font-weight:700; margin-bottom:8px; display:flex; justify-content:space-between; }
+    .progress-label .prog-count { color:var(--accent); font-size:13px; }
+    .progress-bar-bg { background:#e8eaf0; border-radius:999px; height:8px; overflow:hidden; }
+    .progress-bar-fill { height:8px; border-radius:999px; background:var(--accent); transition:width .6s ease; }
+    .invite-edit { display:flex; align-items:center; gap:8px; margin-top:10px; }
+    .invite-edit input {
+      width:80px; padding:5px 8px; border:1.5px solid var(--border);
+      border-radius:6px; font-size:13px; font-family:inherit;
+      text-align:center;
+    }
+    .invite-edit input:focus { outline:none; border-color:var(--accent); }
+    .invite-edit-btn {
+      padding:5px 12px; background:var(--accent); color:#fff;
+      border:none; border-radius:6px; font-size:12px; font-weight:700;
+      cursor:pointer; font-family:inherit;
+    }
+    .invite-edit-btn:hover { opacity:.85; }
+    .invite-edit-msg { font-size:11px; color:var(--accent); font-weight:700; }
     .tag-d { background:#fff2c2; color:#5a4600; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:800; }
     .tag-n { background:#e7efff; color:#173a7a; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:800; }
     .tag-b { background:#e6f7ea; color:#0b5a1b; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:800; }
@@ -156,6 +197,35 @@
       </div>
       <div class="cal-note">⭐ 最多日程はオレンジ枠で強調。「両方（昼夜）」は昼・夜それぞれ+1でカウント。</div>
       <div class="cal-wrap" id="calendarWrap"></div>
+    </div>
+
+    <!-- 進捗バー -->
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-label">
+        <span>📊 回答状況</span>
+        <span class="prog-count" id="progCount">読み込み中…</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progBar" style="width:0%"></div></div>
+      <div class="invite-edit">
+        <span style="font-size:12px;color:var(--muted);">招待人数：</span>
+        <input type="number" id="inviteCountInput" min="0" placeholder="未設定">
+        <button class="invite-edit-btn" id="inviteCountSaveBtn">保存</button>
+        <span class="invite-edit-msg" id="inviteCountMsg"></span>
+      </div>
+    </div>
+
+    <!-- 昼・夜別ベスト -->
+    <div class="best-summary" id="bestSummary" style="display:none;">
+      <div class="best-card day">
+        <div class="best-card-label">🌞 昼ベスト日程</div>
+        <div class="best-card-date" id="bestDayDate">—</div>
+        <div class="best-card-count" id="bestDayCount"></div>
+      </div>
+      <div class="best-card night">
+        <div class="best-card-label">🌙 夜ベスト日程</div>
+        <div class="best-card-date" id="bestNightDate">—</div>
+        <div class="best-card-count" id="bestNightCount"></div>
+      </div>
     </div>
 
     <!-- 集計表 -->
@@ -358,10 +428,85 @@
       });
       const trs=tbody.querySelectorAll('tr');
       scores.forEach((sc,idx)=>{ if(sc===bestScore&&trs[idx]){ trs[idx].classList.add('best'); const td=trs[idx].querySelector('td'); td.innerHTML+=`<span class="best-badge">★</span>`; } });
+
+      // ── 昼・夜別ベスト ──
+      let bestDay=-1, bestNight=-1, bestDayIdx=-1, bestNightIdx=-1;
+      r.slots.forEach((s,i)=>{
+        const detail=(r.detail&&r.detail[s.slotId])?r.detail[s.slotId]:{};
+        const t=tally(detail.user||{});
+        if(t.day>bestDay){   bestDay=t.day;     bestDayIdx=i;   }
+        if(t.night>bestNight){ bestNight=t.night; bestNightIdx=i; }
+      });
+      if(bestDayIdx>=0||bestNightIdx>=0){
+        document.getElementById('bestSummary').style.display='grid';
+        if(bestDayIdx>=0){
+          document.getElementById('bestDayDate').textContent  = formatLabel(r.slots[bestDayIdx].label);
+          document.getElementById('bestDayCount').textContent = `${bestDay}人が昼OK`;
+          const tr=trs[bestDayIdx]; if(tr){ const td=tr.querySelector('td'); if(td&&!td.querySelector('.best-badge.day')) td.innerHTML+=`<span class="best-badge day">🌞</span>`; }
+        }
+        if(bestNightIdx>=0){
+          document.getElementById('bestNightDate').textContent  = formatLabel(r.slots[bestNightIdx].label);
+          document.getElementById('bestNightCount').textContent = `${bestNight}人が夜OK`;
+          const tr=trs[bestNightIdx]; if(tr){ const td=tr.querySelector('td'); if(td&&!td.querySelector('.best-badge.night')) td.innerHTML+=`<span class="best-badge night">🌙</span>`; }
+        }
+      }
+
+      // ── 進捗バー ──
+      const voterSet = new Set();
+      r.slots.forEach(s=>{ const d=r.detail&&r.detail[s.slotId]; if(d) Object.keys(d.user||{}).forEach(n=>voterSet.add(n)); });
+      const voterCount = voterSet.size;
+      document.getElementById('totalVoters').textContent=`${voterCount}名回答済み`;
+      updateProgressBar(voterCount);
+
       renderCalendar(slotMeta,bestScore);
     }
 
     function fallbackCopy(text){ return new Promise((res,rej)=>{ const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); try{ document.execCommand('copy')?res():rej(); }catch(e){ rej(e); } finally{ document.body.removeChild(ta); } }); }
+
+    // ── 招待人数 & 進捗バー ──
+    let INVITE_COUNT = 0;
+
+    function updateProgressBar(voterCount) {
+      const pct = INVITE_COUNT > 0
+        ? Math.min(100, Math.round(voterCount / INVITE_COUNT * 100))
+        : 0;
+      const label = INVITE_COUNT > 0
+        ? `${voterCount} / ${INVITE_COUNT}人 回答済み（${pct}%）`
+        : `${voterCount}人が回答済み`;
+      document.getElementById('progCount').textContent = label;
+      document.getElementById('inviteCountInput').value = INVITE_COUNT || '';
+      setTimeout(()=>{ document.getElementById('progBar').style.width = (INVITE_COUNT>0?pct:0)+'%'; }, 100);
+    }
+
+    // 招待人数を取得して進捗バーに反映
+    if(EVENT_ID) {
+      gasApi('getEventInfo', {eventId: EVENT_ID}).then(info=>{
+        INVITE_COUNT = info.inviteCount || 0;
+        // voterCountはbuildで設定済みなので再取得
+        const voterSet = new Set();
+        document.querySelectorAll('#tbodyArea tr').forEach(tr=>{
+          // すでにbuildが走った後なら再集計は不要なので空でもOK
+        });
+        document.getElementById('inviteCountInput').value = INVITE_COUNT || '';
+      }).catch(()=>{});
+    }
+
+    // 保存ボタン
+    document.getElementById('inviteCountSaveBtn').addEventListener('click', ()=>{
+      const val = parseInt(document.getElementById('inviteCountInput').value) || 0;
+      const msg = document.getElementById('inviteCountMsg');
+      gasApi('updateInviteCount', {eventId: EVENT_ID, inviteCount: val}).then(()=>{
+        INVITE_COUNT = val;
+        // 現在の回答者数を再取得して更新
+        gasApi('getResults', {eventId: EVENT_ID}).then(r=>{
+          const vs = new Set();
+          (r.slots||[]).forEach(s=>{ const d=r.detail&&r.detail[s.slotId]; if(d) Object.keys(d.user||{}).forEach(n=>vs.add(n)); });
+          updateProgressBar(vs.size);
+        });
+        msg.textContent = '✓ 保存しました';
+        setTimeout(()=>{ msg.textContent=''; }, 3000);
+      }).catch(()=>{ msg.textContent = '保存に失敗しました'; });
+    });
 
     function openPerplexity(stations){
       const list=[...new Set((stations||[]).map(s=>String(s||'').trim()).filter(Boolean))];
