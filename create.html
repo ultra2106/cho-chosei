@@ -272,6 +272,8 @@
       <input id="title" type="text" placeholder="例：4月の飲み会">
       <label>説明（任意）</label>
       <input id="desc"  type="text" placeholder="例：居酒屋候補は後ほど連絡します">
+      <label>招待人数（任意）<span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:6px;">後から結果ページで変更できます</span></label>
+      <input id="inviteCount" type="number" min="0" placeholder="例：10" style="max-width:160px;">
     </div>
 
     <!-- 候補日 -->
@@ -487,7 +489,8 @@
       document.getElementById('createBtn').disabled = true;
       showOverlay();
 
-      gasApi('createEvent', { title: t, desc: d, slots: arr })
+      const inviteCount = parseInt(document.getElementById('inviteCount').value)||0;
+      gasApi('createEvent', { title: t, desc: d, slots: arr, inviteCount })
         .then(eventId => {
           hideOverlay();
           document.getElementById('createBtn').disabled = false;
@@ -513,6 +516,7 @@
     function fullClear(){
       document.getElementById('title').value = '';
       document.getElementById('desc').value = '';
+      document.getElementById('inviteCount').value = '';
       document.getElementById('dateText').value = '';
       slots.clear(); calSelected = new Set();
       if(datePickerFp){ datePickerFp.clear(); }
