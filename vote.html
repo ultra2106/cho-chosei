@@ -114,6 +114,15 @@
     .cal-status.night { background:#e7efff; color:#173a7a; }
     .cal-status.both  { background:#e6f7ea; color:#0b5a1b; }
     .cal-status.ng    { background:#ffe7e7; color:#8b1f1f; }
+    /* 他の人の集計バー */
+    .cal-counts { display:flex; gap:3px; margin-top:4px; flex-wrap:wrap; }
+    .cal-count-pill {
+      font-size:10px; font-weight:900; padding:1px 5px;
+      border-radius:999px; line-height:1.5;
+    }
+    .cal-count-pill.day   { background:#fff2c2; color:#5a4600; }
+    .cal-count-pill.night { background:#e7efff; color:#173a7a; }
+    .cal-count-pill.ng    { background:#ffe7e7; color:#8b1f1f; }
 
     /* ── SLOTS ── */
     .slots-section { margin-bottom: 16px; }
@@ -242,7 +251,7 @@
         <span>📅 カレンダー</span>
         <span style="font-size:11px;opacity:.7;">候補日をタップ → 下の回答欄へジャンプ</span>
       </div>
-      <div class="cal-card-note">投票後、カレンダーに「昼/夜/昼夜/×」が反映されます。</div>
+      <div class="cal-card-note">🌞昼・🌙夜の数は他の参加者の集計。あなたの回答は枠の色で表示されます。</div>
       <div class="cal-card-body" id="calendarWrap"></div>
     </div>
 
@@ -277,6 +286,7 @@
     const hideOvl = ()=>overlay.classList.remove('show');
 
     let SLOT_LIST=[];
+    let SLOT_COUNTS={};
     const slotState = new Map();
     const slotDomId = new Map();
     const dateKeyToSlotIds = new Map();
@@ -361,7 +371,7 @@
       return {cls:'none',text:'未',mini:''};
     }
 
-    function renderCalendar(list){
+    function renderCalendar(list, slotCounts={}){
       const wrap=document.getElementById('calendarWrap');
       wrap.innerHTML='';
       dateKeyToSlotIds.clear();
@@ -389,7 +399,9 @@
           const wd=WDS[dt.getDay()];
           if(hitId){
             const lab=statusLabel(slotState.get(hitId)||'');
-            cells+=`<div class="cal-cell hit" data-slot="${hitId}"><div class="cal-daynum"><span>${d}</span><span class="cal-wd-badge">${wd}</span></div><div class="cal-status ${lab.cls}">${lab.mini} ${lab.text}</div></div>`;
+            const cnt=slotCounts[hitId]||{day:0,night:0,ng:0};
+            const cntHtml=(cnt.day||cnt.night||cnt.ng) ? `<div class="cal-counts">${cnt.day?`<span class="cal-count-pill day">🌞${cnt.day}</span>`:''  }${cnt.night?`<span class="cal-count-pill night">🌙${cnt.night}</span>`:''  }${cnt.ng?`<span class="cal-count-pill ng">×${cnt.ng}</span>`:''  }</div>` : '';
+            cells+=`<div class="cal-cell hit" data-slot="${hitId}"><div class="cal-daynum"><span>${d}</span><span class="cal-wd-badge">${wd}</span></div><div class="cal-status ${lab.cls}">${lab.mini} ${lab.text}</div>${cntHtml}</div>`;
           } else {
             cells+=`<div class="cal-cell"><div class="cal-daynum"><span>${d}</span><span class="cal-wd-badge">${wd}</span></div></div>`;
           }
@@ -436,7 +448,24 @@
           </div>
         </div>`;
       }).join('');
-      renderCalendar(SLOT_LIST);
+      // 他の人の集計を取得してカレンダーに反映
+      gasApi('getResults', {eventId: EVENT_ID}).then(r=>{
+        const counts={};
+        if(r&&r.slots&&r.detail){
+          r.slots.forEach(s=>{
+            const d=r.detail[s.slotId]||{};
+            let day=0,night=0,ng=0;
+            Object.values(d.user||{}).forEach(v=>{
+              if(v==='day')   day++;
+              else if(v==='night') night++;
+              else if(v==='both'){day++;night++;}
+              else if(v==='ng') ng++;
+            });
+            counts[s.slotId]={day,night,ng};
+          });
+        }
+        renderCalendar(SLOT_LIST, counts);
+      }).catch(()=>{ renderCalendar(SLOT_LIST); });
     });
 
     // vote click
