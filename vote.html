@@ -273,7 +273,7 @@
     <!-- 送信 -->
     <div class="submit-area">
       <button class="btn-submit" id="submitBtn">✉️ 投票を送信する</button>
-      <a class="btn-result" id="goResultBtn" href="#">📊 結果を見る</a>
+      <a class="btn-result" id="goResultBtn" href="#" style="display:inline-flex;">📊 結果を見る</a>
     </div>
     <div class="after-submit" id="afterSubmit">✅ 投票を保存しました！「結果を見る」で集計を確認できます。</div>
 
@@ -297,6 +297,7 @@
     const VOTE_URL   = location.origin + location.pathname + (EVENT_ID ? '?eventId=' + encodeURIComponent(EVENT_ID) : '');
     const RESULT_URL = _base + 'result.html' + (EVENT_ID ? '?eventId=' + encodeURIComponent(EVENT_ID) : '');
     document.getElementById('copyVoteUrlBtn').classList.remove('disabled');
+    document.getElementById('goResultBtn').href = RESULT_URL;
     async function gasApi(action, params={}) {
       // doGet方式でCORSを回避（GASはdoPostにCORSヘッダーを付けられないため）
       const query = '?action=' + encodeURIComponent(action)
