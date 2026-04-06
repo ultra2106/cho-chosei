@@ -241,7 +241,10 @@
     <div class="event-card">
       <div class="event-card-label">イベント</div>
       <div class="event-card-title" id="eventTitle">読み込み中…</div>
-      <button class="btn-copy-url disabled" id="copyVoteUrlBtn">🔗 この投票ページのURLをコピー</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button class="btn-copy-url disabled" id="copyVoteUrlBtn">🔗 この投票ページのURLをコピー</button>
+        <a id="toResultBtn" href="#" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);border-radius:var(--radius);color:#fff;font-size:13px;font-weight:700;text-decoration:none;transition:background .15s;">📊 結果を見る</a>
+      </div>
       <div id="copyVoteMsg"></div>
     </div>
 
@@ -298,6 +301,7 @@
     const RESULT_URL = _base + 'result.html' + (EVENT_ID ? '?eventId=' + encodeURIComponent(EVENT_ID) : '');
     document.getElementById('copyVoteUrlBtn').classList.remove('disabled');
     document.getElementById('goResultBtn').href = RESULT_URL;
+    document.getElementById('toResultBtn').href = RESULT_URL;
     async function gasApi(action, params={}) {
       // doGet方式でCORSを回避（GASはdoPostにCORSヘッダーを付けられないため）
       const query = '?action=' + encodeURIComponent(action)
