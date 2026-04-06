@@ -139,59 +139,19 @@
     .invite-edit-btn:hover { opacity:.85; }
     .invite-edit-msg { font-size:11px; color:var(--accent); font-weight:700; }
 
-    /* 食べログモーダル */
-    .tabelog-modal-wrap {
-      display:none;
-      position:fixed; inset:0;
-      background:rgba(13,17,23,0.6);
-      backdrop-filter:blur(4px);
-      z-index:9999;
-      align-items:center; justify-content:center;
-    }
+    .tabelog-modal-wrap { display:none; position:fixed; inset:0; background:rgba(13,17,23,0.6); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; }
     .tabelog-modal-wrap.show { display:flex; }
-    .tabelog-modal {
-      background:var(--card);
-      border:2px solid var(--ink);
-      border-radius:14px;
-      padding:24px;
-      width:calc(100% - 40px);
-      max-width:420px;
-      box-shadow:6px 6px 0 var(--ink);
-    }
+    .tabelog-modal { background:var(--card); border:2px solid var(--ink); border-radius:14px; padding:24px; width:calc(100% - 40px); max-width:420px; box-shadow:6px 6px 0 var(--ink); }
     .tabelog-modal-title { font-family:'Syne','Arial Black',Arial,sans-serif; font-size:17px; font-weight:900; margin-bottom:4px; }
     .tabelog-modal-sub   { font-size:13px; color:var(--muted); margin-bottom:20px; }
     .tabelog-field { margin-bottom:16px; }
     .tabelog-field label { display:block; font-size:12px; font-weight:700; color:var(--muted); margin-bottom:6px; }
-    .tabelog-field input,
-    .tabelog-field select {
-      width:100%; padding:11px 13px;
-      border:2px solid var(--border); border-radius:var(--radius);
-      background:var(--cream); color:var(--ink);
-      font-family:'Noto Sans JP',sans-serif; font-size:15px;
-      outline:none; transition:border-color .15s;
-    }
-    .tabelog-field input:focus,
-    .tabelog-field select:focus { border-color:var(--accent); }
-    .tabelog-pax-badge {
-      display:inline-block; background:var(--accent); color:#fff;
-      font-size:13px; font-weight:900; padding:4px 14px;
-      border-radius:999px; margin-left:8px;
-    }
+    .tabelog-field input, .tabelog-field select { width:100%; padding:11px 13px; border:2px solid var(--border); border-radius:var(--radius); background:var(--cream); color:var(--ink); font-family:'Noto Sans JP',sans-serif; font-size:15px; outline:none; transition:border-color .15s; }
+    .tabelog-field input:focus, .tabelog-field select:focus { border-color:var(--accent); }
+    .tabelog-pax-badge { display:inline-block; background:var(--accent); color:#fff; font-size:13px; font-weight:900; padding:4px 14px; border-radius:999px; margin-left:8px; }
     .tabelog-btns { display:flex; gap:8px; margin-top:20px; }
-    .tabelog-cancel {
-      flex:1; padding:12px;
-      background:transparent; border:2px solid var(--border);
-      border-radius:var(--radius); font-size:14px; font-weight:700;
-      color:var(--muted); cursor:pointer; font-family:inherit;
-    }
-    .tabelog-go {
-      flex:2; padding:12px;
-      background:var(--accent); border:2px solid var(--ink);
-      border-radius:var(--radius); font-size:14px; font-weight:900;
-      color:#fff; cursor:pointer; font-family:inherit;
-      box-shadow:3px 3px 0 var(--ink);
-      transition:transform .1s, box-shadow .1s;
-    }
+    .tabelog-cancel { flex:1; padding:12px; background:transparent; border:2px solid var(--border); border-radius:var(--radius); font-size:14px; font-weight:700; color:var(--muted); cursor:pointer; font-family:inherit; }
+    .tabelog-go { flex:2; padding:12px; background:var(--accent); border:2px solid var(--ink); border-radius:var(--radius); font-size:14px; font-weight:900; color:#fff; cursor:pointer; font-family:inherit; box-shadow:3px 3px 0 var(--ink); transition:transform .1s, box-shadow .1s; }
     .tabelog-go:hover { transform:translate(-2px,-2px); box-shadow:5px 5px 0 var(--ink); }
     .tag-d { background:#fff2c2; color:#5a4600; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:800; }
     .tag-n { background:#e7efff; color:#173a7a; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:800; }
@@ -275,13 +235,13 @@
         <div class="best-card-label">🌞 昼ベスト日程</div>
         <div class="best-card-date" id="bestDayDate">—</div>
         <div class="best-card-count" id="bestDayCount"></div>
-        <button id="tabelogDayBtn" onclick="" style="display:none;margin-top:10px;width:100%;padding:9px;background:#d4a000;border:2px solid #8a6600;border-radius:var(--radius);font-size:13px;font-weight:900;color:#fff;cursor:pointer;font-family:inherit;box-shadow:2px 2px 0 #8a6600;">🍽️ この日の昼で決定・店を探す</button>
+        <div style="font-size:10px;margin-top:6px;opacity:.6;line-height:1.5;">参加可能人数が最大、かつ候補日が最も早い日程</div>
       </div>
       <div class="best-card night">
         <div class="best-card-label">🌙 夜ベスト日程</div>
         <div class="best-card-date" id="bestNightDate">—</div>
         <div class="best-card-count" id="bestNightCount"></div>
-        <button id="tabelogNightBtn" onclick="" style="display:none;margin-top:10px;width:100%;padding:9px;background:#185fa5;border:2px solid #0a3d6b;border-radius:var(--radius);font-size:13px;font-weight:900;color:#fff;cursor:pointer;font-family:inherit;box-shadow:2px 2px 0 #0a3d6b;">🍽️ この日の夜で決定・店を探す</button>
+        <div style="font-size:10px;margin-top:6px;opacity:.6;line-height:1.5;">参加可能人数が最大、かつ候補日が最も早い日程</div>
       </div>
     </div>
 
@@ -503,6 +463,7 @@
           const dayBtn = document.getElementById('tabelogDayBtn');
           dayBtn.style.display = 'block';
           dayBtn.onclick = () => openTabelogModal('day', dayLabel, bestDay);
+
           const tr=trs[bestDayIdx]; if(tr){ const td=tr.querySelector('td'); if(td&&!td.querySelector('.best-badge.day')) td.innerHTML+=`<span class="best-badge day">🌞</span>`; }
         }
         if(bestNightIdx>=0){
@@ -512,6 +473,7 @@
           const nightBtn = document.getElementById('tabelogNightBtn');
           nightBtn.style.display = 'block';
           nightBtn.onclick = () => openTabelogModal('night', nightLabel, bestNight);
+
           const tr=trs[bestNightIdx]; if(tr){ const td=tr.querySelector('td'); if(td&&!td.querySelector('.best-badge.night')) td.innerHTML+=`<span class="best-badge night">🌙</span>`; }
         }
       }
@@ -571,19 +533,17 @@
         msg.textContent = '✓ 保存しました';
         setTimeout(()=>{ msg.textContent=''; }, 3000);
       }).catch(()=>{ msg.textContent = '保存に失敗しました'; });
-    });
-
-    // ── 食べログモーダル ──
+    });    // ── 食べログモーダル ──
     let _tabelogPax = 0;
+    let _tabelogType = 'day';
 
     function openTabelogModal(type, dateStr, pax) {
       _tabelogPax = pax;
+      _tabelogType = type;
       const isDay = type === 'day';
-      document.getElementById('tabelogModalTitle').textContent = dateStr + '　' + (isDay ? '昼' : '夜') + 'で決定';
-      document.getElementById('tabelogModalSub').textContent   = '店を探す条件を入力してください';
+      document.getElementById('tabelogModalTitle').textContent = dateStr + '　' + (isDay ? '昼' : '夜') + 'でお店を探す';
+      document.getElementById('tabelogModalSub').textContent   = 'エリアと時間を入力してください';
       document.getElementById('tabelogPaxBadge').textContent   = pax + '名';
-
-      // 時間の選択肢を生成
       const sel = document.getElementById('tabelogHour');
       sel.innerHTML = '';
       const slots = isDay
@@ -592,13 +552,11 @@
       const defaultH = isDay ? 12 : 19;
       slots.forEach(([h,m]) => {
         const opt = document.createElement('option');
-        const hh  = h === 24 ? 0 : h;
-        opt.value = String(h).padStart(2,'0') + String(m).padStart(2,'0') + '00';
+        opt.value = String(h === 24 ? 0 : h).padStart(2,'0') + String(m).padStart(2,'0');
         opt.textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
         if (h === defaultH && m === 0) opt.selected = true;
         sel.appendChild(opt);
       });
-
       document.getElementById('tabelogModal').classList.add('show');
       setTimeout(() => document.getElementById('tabelogArea').focus(), 100);
     }
@@ -607,26 +565,38 @@
       document.getElementById('tabelogModal').classList.remove('show');
     }
 
+    function parseTabelogDate(label) {
+      const m = String(label).match(/(\d{1,2})\/(\d{1,2})/);
+      if (!m) {
+        const d = new Date(); d.setDate(d.getDate() + 14);
+        return d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+      }
+      const mon = parseInt(m[1]), day = parseInt(m[2]);
+      const now = new Date();
+      let year = now.getFullYear();
+      if (mon < now.getMonth() + 1) year++;
+      return year + String(mon).padStart(2,'0') + String(day).padStart(2,'0');
+    }
+
     function goTabelog() {
       const area = document.getElementById('tabelogArea').value.trim() || '東京';
       const time = document.getElementById('tabelogHour').value;
       const pax  = _tabelogPax;
-
-      // 食べログ検索URL
-      const url = 'https://tabelog.com/rst/search'
+      const dateLabel = document.getElementById(_tabelogType === 'day' ? 'bestDayDate' : 'bestNightDate').textContent;
+      const svd = parseTabelogDate(dateLabel);
+      const url = 'https://tabelog.com/rstLst/'
         + '?vs=1'
         + '&sa=' + encodeURIComponent(area)
         + '&sk=' + encodeURIComponent(area)
-        + '&vac_net=' + pax
+        + '&svd=' + svd
         + '&svt=' + time
         + '&svps=' + pax
         + '&hfc=1'
-        + '&Cat=RC';
+        + '&vac_net=1';
       window.open(url, '_blank');
       closeTabelogModal();
     }
 
-    // モーダル外クリックで閉じる
     document.getElementById('tabelogModal').addEventListener('click', function(e) {
       if (e.target === this) closeTabelogModal();
     });
@@ -638,7 +608,6 @@
       window.open('https://www.perplexity.ai/?q='+encodeURIComponent(q),'_blank');
     }
   </script>
-  <!-- 食べログ検索モーダル -->
   <div class="tabelog-modal-wrap" id="tabelogModal">
     <div class="tabelog-modal">
       <div class="tabelog-modal-title" id="tabelogModalTitle"></div>
