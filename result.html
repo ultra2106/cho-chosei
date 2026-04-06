@@ -588,12 +588,14 @@
       const dateLabel = document.getElementById(_tabelogType === 'day' ? 'bestDayDate' : 'bestNightDate').textContent;
       const svd = parseTabelogDate(dateLabel);
       // ジャンルがある場合はジャンルパスに、なければrstLst直下に
-      const base = genre
-        ? 'https://tabelog.com/rstLst/' + genre + '/'
-        : 'https://tabelog.com/rstLst/';
-      const url = base
+      // ジャンルが選ばれていればskキーワードに追加、なければskなし
+      const genreLabel = genre
+        ? document.getElementById('tabelogGenre').options[document.getElementById('tabelogGenre').selectedIndex].text
+        : '';
+      const url = 'https://tabelog.com/rstLst/'
         + '?vs=1'
         + '&sa=' + encodeURIComponent(area)
+        + (genreLabel ? '&sk=' + encodeURIComponent(genreLabel) : '')
         + '&svd=' + svd
         + '&svt=' + time
         + '&svps=' + pax
@@ -619,8 +621,8 @@
       <div class="tabelog-modal-title" id="tabelogModalTitle"></div>
       <div class="tabelog-modal-sub" id="tabelogModalSub"></div>
       <div class="tabelog-field">
-        <label>エリア・最寄り駅</label>
-        <input type="text" id="tabelogArea" placeholder="例：恵比寿">
+        <label>最寄り駅</label>
+        <input type="text" id="tabelogArea" placeholder="例：恵比寿駅">
       </div>
       <div class="tabelog-field">
         <label>開始時間 <span class="tabelog-pax-badge" id="tabelogPaxBadge"></span></label>
