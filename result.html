@@ -581,15 +581,19 @@
     }
 
     function goTabelog() {
-      const area = document.getElementById('tabelogArea').value.trim() || '東京';
-      const time = document.getElementById('tabelogHour').value;
-      const pax  = _tabelogPax;
+      const area  = document.getElementById('tabelogArea').value.trim() || '東京';
+      const time  = document.getElementById('tabelogHour').value;
+      const genre = document.getElementById('tabelogGenre').value;
+      const pax   = _tabelogPax;
       const dateLabel = document.getElementById(_tabelogType === 'day' ? 'bestDayDate' : 'bestNightDate').textContent;
       const svd = parseTabelogDate(dateLabel);
-      const url = 'https://tabelog.com/rstLst/'
+      // ジャンルがある場合はジャンルパスに、なければrstLst直下に
+      const base = genre
+        ? 'https://tabelog.com/rstLst/' + genre + '/'
+        : 'https://tabelog.com/rstLst/';
+      const url = base
         + '?vs=1'
         + '&sa=' + encodeURIComponent(area)
-        + '&sk=' + encodeURIComponent(area)
         + '&svd=' + svd
         + '&svt=' + time
         + '&svps=' + pax
@@ -621,6 +625,25 @@
       <div class="tabelog-field">
         <label>開始時間 <span class="tabelog-pax-badge" id="tabelogPaxBadge"></span></label>
         <select id="tabelogHour"></select>
+      </div>
+      <div class="tabelog-field">
+        <label>ジャンル（任意）</label>
+        <select id="tabelogGenre">
+          <option value="">指定なし</option>
+          <option value="izakaya">居酒屋</option>
+          <option value="washoku">和食</option>
+          <option value="yakiniku">焼肉・ホルモン</option>
+          <option value="italian">イタリアン</option>
+          <option value="french">フレンチ</option>
+          <option value="chinese">中華料理</option>
+          <option value="sushi">寿司</option>
+          <option value="ramen">ラーメン</option>
+          <option value="nabe">鍋</option>
+          <option value="yakitori">焼き鳥</option>
+          <option value="seafood">海鮮・魚介</option>
+          <option value="bar">バー・お酒</option>
+          <option value="cafe">カフェ・喫茶店</option>
+        </select>
       </div>
       <div class="tabelog-btns">
         <button class="tabelog-cancel" onclick="closeTabelogModal()">キャンセル</button>
